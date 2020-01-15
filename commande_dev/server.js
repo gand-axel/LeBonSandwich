@@ -1,7 +1,10 @@
 "use strict";
 
+
+const bodyparser = require('body-parser');
 const express = require("express");
 const mysql = require("mysql");
+
 
 // Constants
 const PORT = 8080;
@@ -79,7 +82,18 @@ app.get('/commandes/:id', function (req, res) {
   });
 })
 
+
+
+
+
 //POST
+
+app.use(bodyparser.urlencoded({ extended:false}));
+app.use(bodyparser.json());
+app.post('/item', (req, res) =>
+  res.json(req.body));
+
+
 app.post("/*", (req, res) => {
   let erreur = {
     "type": "error",
@@ -90,9 +104,7 @@ app.post("/*", (req, res) => {
   res.send(erreur)
 });
 
-app.post('/item', function (req, res) {
 
-})
 
 
 
