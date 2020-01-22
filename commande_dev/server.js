@@ -1,3 +1,47 @@
+/*"use strict";
+
+const express = require("express");
+const mysql = require("mysql");
+
+// Constants
+const PORT = 8080;
+const HOST = "0.0.0.0";
+
+// App
+const app = express();
+app.get("/", (req, res) => {
+  res.send("Commande API\n");
+});
+
+app.listen(PORT, HOST);
+console.log(`Commande API Running on http://${HOST}:${PORT}`);
+
+const db = mysql.createConnection({
+  host: "mysql.commande",
+  user: "command_lbs",
+  password: "command_lbs",
+  database: "command_lbs"
+});
+
+// connexion à la bdd
+db.connect(err => {
+  if (err) {
+    throw err;
+  }
+  console.log("Connected to database");
+});
+
+let query = "SELECT * FROM `commande` ORDER BY id ASC"; // query database to get all the players
+
+db.query(query, (err, result) => {
+  if (err) {
+    console.error(err);
+  }
+
+  ///console.log(result);
+});
+*/
+
 "use strict";
 
 
@@ -90,8 +134,9 @@ app.get('/commandes/:id', function (req, res) {
 
 app.use(bodyparser.urlencoded({ extended:false}));
 app.use(bodyparser.json());
-app.post('/item', (req, res) =>
-  res.json(req.body));
+app.post('/item', (req, res) =>{
+  res.json(req.body)
+});
 
 app.post("/*", (req, res) => {
   let erreur = {
