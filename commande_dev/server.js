@@ -15,15 +15,7 @@ const app = express();
 
 
 //GET
-app.get("/*", (req, res) => {
-  let erreur = {
-    "type": "error",
-    "error": 400,
-    "message": "BAD REQUEST"
-  }
-  JSON.stringify(erreur)
-  res.send(erreur)
-});
+
 app.get('/commandes', function (req, res) {
   let queryCommandes = "SELECT * FROM commande"; // query database to get all the players
   db.query(queryCommandes, (err, result) => {
@@ -82,7 +74,15 @@ app.get('/commandes/:id', function (req, res) {
   });
 })
 
-
+app.get("/*", (req, res) => {
+  let erreur = {
+    "type": "error",
+    "error": 400,
+    "message": "BAD REQUEST"
+  }
+  JSON.stringify(erreur)
+  res.send(erreur)
+});
 
 
 
