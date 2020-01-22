@@ -90,9 +90,9 @@ app.get('/commandes/:id', function (req, res) {
 
 app.use(bodyparser.urlencoded({ extended:false}));
 app.use(bodyparser.json());
-app.post('/item', (req, res) =>
-  res.json(req.body));
-
+app.post('/item', (req, res) =>{
+  res.json(req.body)
+});
 
 app.post("/*", (req, res) => {
   let erreur = {
