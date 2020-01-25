@@ -13,7 +13,7 @@ local.properties
 .db
 *.ini
 conf/
-commande_dev/node_modules/
+
 
 # External tool builders
 .externalToolBuilders/

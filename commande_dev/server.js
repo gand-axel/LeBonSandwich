@@ -48,6 +48,7 @@ db.query(query, (err, result) => {
 const bodyparser = require('body-parser');
 const express = require("express");
 const mysql = require("mysql");
+const uuid = require("uuid/v1");
 
 
 // Constants
@@ -139,16 +140,69 @@ app.post('/item', (req, res) =>{
   res.json(req.body)
 });
 
-app.post("/*", (req, res) => {
-  let erreur = {
-    "type": "error",
-    "error": 400,
-    "message": "BAD REQUEST"
-  }
-  JSON.stringify(erreur)
-  res.send(erreur)
+app.post("/", (req, res) => {
+
+  //res.send(req.param('nom') + ' ' + req.param('mail') + ' ' + req.param('livraison'));
+   let date = new Date()
+    let dateActu = date.getFullYear() + '-' + (date.getMonth()+1)  + '-' + date.getDate() +  ' ' + (date.getHours()+1) + ':'+ date.getMinutes() + ':'+date.getSeconds();
+    const pattern = /^[a-z0-9.-]{2,}@+[a-z0-9.-]{2,}$/i;
+    let uid = uuid();
+    const name = req.param('nom');
+    const email = req.param('mail');
+    const livraison = req.param('livraison');
+    let montant = 3 + (Math.random() * (50 - 3));
+
+    if(email.match(pattern) && typeof name !== 'undefined' && typeof livraison !== 'undefined'){
+      let query = `Insert into commande (id,created_at,updated_at,livraison,nom,mail,montant) values ('${uid}','${dateActu}','${dateActu}','${livraison}','${name}','${email}',${montant})`;
+        let newCommande = `Select * from commande where id = '${uid}'`
+        db.query(query, (err, result) => {
+            if (err) {
+                console.error(err);
+            }
+            db.query(newCommande, (err,result) => {
+                if (err) {
+                    console.log(err)
+                }
+                res.json(result)
+                res.status(200).send('CREATED')
+            })
+        });
+    }else{
+      res.status(400).send('Vérifier les paramètres que vous avez entré')
+    }
+    res.location('/commandes/' + uid);
 });
 
+app.post("/:id", (req, res) =>{
+
+    const idC = req.params.id;
+    const pattern = /^[a-z0-9.-]{2,}@+[a-z0-9.-]{2,}$/i;
+    const name = req.param('nom');
+    const email = req.param('mail');
+    const livraison = req.param('livraison');
+
+
+    if(email.match(pattern) && typeof name !== 'undefined' && typeof livraison !== 'undefined') {
+        let query = `UPDATE commande SET nom = '${name}', mail = '${email}', livraison = '${livraison}' where id = '${idC}'`;
+        let newCommande = `Select * from commande where id = '${idC}'`
+        db.query(query, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
+            //res.status(200).send('Update réussie')
+            db.query(newCommande, (err,result) => {
+              if (err) {
+                console.log(err)
+              }
+              res.json(result)
+            })
+        })
+    }else{
+        res.status(400).send('Il manque des données pour pouvoir modifier cette commande')
+    }
+
+
+});
 
 
 
@@ -187,7 +241,7 @@ const db = mysql.createConnection({
 // connexion à la bdd
 db.connect(err => {
   if (err) {
-    throw err;
+    console.error(err);
   }
   console.log("Connected to database");
 });
