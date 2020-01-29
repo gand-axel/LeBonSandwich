@@ -62,7 +62,9 @@ const app = express();
 //GET
 
 app.get('/commandes', function (req, res) {
-  let queryCommandes = "SELECT * FROM commande"; // query database to get all the players
+    const status = req.param('s');
+  if(typeof status !== 'undefined'){
+  let queryCommandes = `SELECT * FROM commande where status = '${status}'`; // query database to get all the players
   db.query(queryCommandes, (err, result) => {
     if (err) {
       let erreur = {
@@ -88,6 +90,34 @@ app.get('/commandes', function (req, res) {
       }
     }
   });
+  }else{
+      let queryAllCommandes = `SELECT * FROM commande`;
+      db.query(queryAllCommandes, (err, result) => {
+          if (err) {
+              let erreur = {
+                  "type": "error",
+                  "error": 500,
+                  "message": err
+              }
+              JSON.stringify(erreur)
+              res.send(erreur)
+          }
+          else {
+              if (result == "") {
+                  let erreur = {
+                      "type": "error",
+                      "error": 404,
+                      "message": "no command found"
+                  }
+                  JSON.stringify(erreur)
+                  res.send(erreur)
+              }
+              else {
+                  res.send(result)
+              }
+          }
+      });
+  }
 })
 
 app.get('/commandes/:id', function (req, res) {
@@ -154,7 +184,7 @@ app.post("/", (req, res) => {
 
     if(email.match(pattern) && typeof name !== 'undefined' && typeof livraison !== 'undefined'){
       let query = `Insert into commande (id,created_at,updated_at,livraison,nom,mail,montant) values ('${uid}','${dateActu}','${dateActu}','${livraison}','${name}','${email}',${montant})`;
-        let newCommande = `Select * from commande where id = '${uid}'`
+        let newCommande = `Select * from commande where id = '${uid}'`;
         db.query(query, (err, result) => {
             if (err) {
                 console.error(err);
