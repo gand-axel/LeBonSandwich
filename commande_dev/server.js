@@ -62,7 +62,9 @@ const app = express();
 //GET
 
 app.get('/commandes', function (req, res) {
-    const status = req.param('s');
+    let status = req.param('s');
+    let page = parseInt(req.param('page'));
+    let size = req.param('size');
   if(typeof status !== 'undefined'){
   let queryCommandes = `SELECT * FROM commande where status = '${status}'`; // query database to get all the players
   db.query(queryCommandes, (err, result) => {
@@ -86,12 +88,70 @@ app.get('/commandes', function (req, res) {
         res.send(erreur)
       }
       else {
-        res.send(result)
+          let retour = {
+              "type":"collection",
+              "count": Object.keys(queryCommandes).length,
+              "size": size,
+              "commands": result
+          }
+        res.send(retour)
       }
     }
   });
+  }else if(typeof page !== 'undefined' && typeof size !== 'undefined'){
+      if(typeof page <= 0){
+          page = 0;
+      }
+        let p = page*size;
+        let queryPagesCommandes = "SELECT * FROM commande LIMIT " + p + "," + size;
+      db.query(queryPagesCommandes, (err, result) => {
+          if (err) {
+              let erreur = {
+                  "type": "error",
+                  "error": 500,
+                  "message": err
+              }
+              JSON.stringify(erreur)
+              res.send(erreur)
+          }
+          else {
+              if (result == "") {
+                  let erreur = {
+                      "type": "error",
+                      "error": 404,
+                      "message": "no command found"
+                  }
+                  JSON.stringify(erreur)
+                  res.send(erreur)
+              }
+              else {
+                  let retour = {
+                      "type":"collection",
+                      "count": Object.keys(req).length,
+                      "size": size,
+                      "links": {
+                          "next": {
+                              "href": "/commandes/?page=" + (page+1) +  "&size=" + size
+                          },
+                          "prev": {
+                              "href": "/commandes/?page=" + (page-1) + "&size=" + size
+                          },
+                          "last":{
+                              "href": "/commandes/?page=" + Object.keys(req).length + "&size=" + size
+                          },
+                          "first":{
+                              "href": "/commandes/?page=1&size=" + size
+                          },
+
+                      },
+                      "commands": result
+                  }
+                  res.send(retour);
+              }
+          }
+      });
   }else{
-      let queryAllCommandes = `SELECT * FROM commande`;
+      let queryAllCommandes = `SELECT * FROM commande LIMIT 0,10`;
       db.query(queryAllCommandes, (err, result) => {
           if (err) {
               let erreur = {
@@ -113,11 +173,18 @@ app.get('/commandes', function (req, res) {
                   res.send(erreur)
               }
               else {
-                  res.send(result)
+                  let retour = {
+                      "type":"collection",
+                      "count": Object.keys(req).length,
+                      "size" : 10,
+                      "commands": result
+                  }
+                  res.send(retour);
               }
           }
       });
-  }
+
+    }
 })
 
 app.get('/commandes/:id', function (req, res) {
@@ -172,7 +239,6 @@ app.post('/item', (req, res) =>{
 
 app.post("/", (req, res) => {
 
-  //res.send(req.param('nom') + ' ' + req.param('mail') + ' ' + req.param('livraison'));
    let date = new Date()
     let dateActu = date.getFullYear() + '-' + (date.getMonth()+1)  + '-' + date.getDate() +  ' ' + (date.getHours()+1) + ':'+ date.getMinutes() + ':'+date.getSeconds();
     const pattern = /^[a-z0-9.-]{2,}@+[a-z0-9.-]{2,}$/i;
