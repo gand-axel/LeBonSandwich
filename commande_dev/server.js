@@ -89,9 +89,7 @@ app.get('/commands', function (req, res) {
 })
 
 app.get('/commands/:id', function (req, res) {
-    let queryCommandesId = "SELECT id,created_at,livraison,nom,mail,montant FROM commande WHERE id = " + "'" + req.params.id + "'";
-    let queryCommandesItems = "SELECT uri,libelle,tarif,quantite FROM item WHERE command_id = " + "'" + req.params.id + "'";
-    db.query(queryCommandesId, (err1, result1) => {
+    db.query("SELECT id,created_at,livraison,nom,mail,montant FROM commande WHERE id = " + "'" + req.params.id + "'", (err1, result1) => {
         if (err1) {
             let erreur = {
                 "type": "error",
@@ -100,7 +98,7 @@ app.get('/commands/:id', function (req, res) {
             };
             JSON.stringify(erreur);
             res.send(erreur);
-        } else if (result1 === "") {
+        } else if(result1 == "") {
             let erreur = {
                 "type": "error",
                 "error": 404,
@@ -108,7 +106,7 @@ app.get('/commands/:id', function (req, res) {
             };
             JSON.stringify(erreur);
             res.send(erreur);
-        } else db.query(queryCommandesItems, (err2, result2) => {
+        } else db.query("SELECT uri,libelle,tarif,quantite FROM item WHERE command_id = " + "'" + req.params.id + "'", (err2, result2) => {
             if (err2) {
                 let erreur = {
                     "type": "error",
