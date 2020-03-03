@@ -48,16 +48,14 @@ app.get("/sandwichs", (req, res) => {
   });
 });
 
-//récupération des sandwichs d'une catégorie
-app.get("/categories/:id/sandwichs", (req, res) => {
-  Category.find({id: req.params.id}, (err, result) => {
-    if (err) res.status(500).send(err);
-    Sandwich.find({categories: result[0].nom},(err_sandw,result_sandw) => {
-      if (err_sandw) {
-        res.status(500).send(err);
-      }
-      res.status(200).json(result_sandw);
-    })
+//récupération d'un sandwich
+app.get("/sandwichs/:id", (req, res) => {
+  Sandwich.find({ref: req.params.id}, (err, result) => {
+    if (err) {
+      res.status(500).send(err);
+    }
+
+    res.status(200).json(result);
   });
 });
 
@@ -86,6 +84,19 @@ app.get("/categories/:id", (req, res) => {
     data.categorie = result;
     data.links = {sandwichs: `${url}/sandwichs`, self: `${url}`};
     res.status(200).json(data);
+  });
+});
+
+//récupération des sandwichs d'une catégorie
+app.get("/categories/:id/sandwichs", (req, res) => {
+  Category.find({id: req.params.id}, (err, result) => {
+    if (err) res.status(500).send(err);
+    Sandwich.find({categories: result[0].nom},(err_sandw,result_sandw) => {
+      if (err_sandw) {
+        res.status(500).send(err);
+      }
+      res.status(200).json(result_sandw);
+    })
   });
 });
 

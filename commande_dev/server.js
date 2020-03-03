@@ -10,7 +10,14 @@ const HOST = "0.0.0.0";
 
 const app = express();
 
+app.use(bodyparser.urlencoded({ extended:false}));
+app.use(bodyparser.json());
+
 //GET
+
+app.get("/", (req, res) => {
+  res.send("Commande API\n");
+});
 
 app.get('/commands', function (req, res) {
   let status = req.param('s');
@@ -116,9 +123,6 @@ app.get("/*", (req, res) => {
 });
 
 //POST
-
-app.use(bodyparser.urlencoded({ extended:false}));
-app.use(bodyparser.json());
 
 app.post("/", (req, res) => {
     let date = new Date()
