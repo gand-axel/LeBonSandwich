@@ -29,7 +29,12 @@ Pour installer Nodemon, se rendre dans les dossiers ./commande_dev et ./catalogu
 
 #### urls
 
+1. Commande
+
 http://localhost:19080
+
+2. Catalogue
+
 http://localhost:19180
 
 ## Accès à l'administration "Mongo Express" de la base de données MongoDB
