@@ -50,7 +50,7 @@ app.get("/sandwichs", (req, res) => {
 
 //récupération d'un sandwich
 app.get("/sandwichs/:id", (req, res) => {
-  Sandwich.find({ref: req.params.id}, (err, result) => {
+  Sandwich.findById(req.params.id, (err, result) => {
     if (err) {
       res.status(500).send(err);
     }
@@ -93,10 +93,21 @@ app.get("/categories/:id/sandwichs", (req, res) => {
   Category.find({id: req.params.id}, (err, result) => {
     if (err) res.status(500).send(err);
     Sandwich.find({categories: result[0].nom},(err_sandw,result_sandw) => {
-      if (err_sandw) {
-        res.status(500).send(err);
-      }
-      res.status(200).json(result_sandw);
+      if (err_sandw) res.status(500).send(err);
+      let count = result_sandw.length;
+
+      result_sandw.forEach(function (sandwich, index) {
+        result_sandw[index] = JSON.parse(JSON.stringify({
+            sandwich: sandwich,
+            links: {self: {href: "/sandwichs/" + sandwich.id + "/"}}
+        }));
+      })
+
+      res.json({
+        "type": "collection",
+        "count": count,
+        "sandwichs": result_sandw
+      })
     })
   });
 });

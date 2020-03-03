@@ -2,7 +2,7 @@
 
 ## Installation
 
-Pour installer Nodemon, se rendre dans le dossier ./commande_dev
+Pour installer Nodemon, se rendre dans les dossiers ./commande_dev et ./catalogue_dev
 
 > npm i
 
@@ -11,37 +11,32 @@ Pour installer Nodemon, se rendre dans le dossier ./commande_dev
 1. ./command_api/sql/command_lbs.schema.sql
 2. ./command_api/sql/command_lbs_data_1.sql
 
-_Les données n°3 correspondent à plusieurs miliers de commandes_
-
 ## Démarrer le projet
 
 > docker-compose up
 
-Dans le cadre du développement, il est possible d'effectuer des "modifications live" des applications Node.js (Catalogue, Commande, Point de Vente) grâce à Nodemon qui effectue un "Hot Reloading".
+## Import des données de la base de données MongoDB
 
-## Stopper le projet
+1. Categories
 
-> ctrl + c
+> docker-compose exec mongo.cat mongoimport --db mongo --collection categories --file /var/data/categories.json --jsonArray
 
-## Accès aux API fournies par les applications Node.js
+2. Sandwichs
+
+> docker-compose exec mongo.cat mongoimport --db mongo --collection sandwichs --file /var/data/sandwichs.json --jsonArray
 
 ### API Commande
 
-#### Répertoire de développement
-
-./commande_dev
-
-#### Répertoire de production
-
-./commande_api
-
-#### url
+#### urls
 
 http://localhost:19080
+http://localhost:19180
 
-> curl localhost:19080
+## Accès à l'administration "Mongo Express" de la base de données MongoDB
 
-## Accès à l'administration "Adminer" de la base de données des Commandes de type MariaDB
+http://localhost:8081
+
+## Accès à l'administration "Adminer" de la base de données MariaDB
 
 http://localhost:8080
 
@@ -50,15 +45,6 @@ http://localhost:8080
 - utilisateur : command_lbs
 - mot de passe : command_lbs
 
----
+## Stopper le projet
 
-### Auteur : **Alexandre Leroux**
-
-<alex@sherpa.one>
-
-Enseignant à l'Université Lorraine
-
-- IUT Charlemagne (LP Ciasie),
-- Institut des Sciences du Digital IDMC (Master Sciences Cognitives),
-
-Décembre 2019
+> ctrl + c
