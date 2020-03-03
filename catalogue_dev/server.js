@@ -153,3 +153,5 @@ function get_next_id() {
 
 app.listen(PORT, HOST);
 console.log(`Catalogue API Running on http://${HOST}:${PORT}`);
+
+// Pour y accéder, port 19180
