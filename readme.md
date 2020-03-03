@@ -1,5 +1,7 @@
 # Projet **_"Le Bon Sandwich"_** 2019/2020 version Node.js
 
+MISSLER Quentin, GAND Axel, GACHENOT Antoine
+
 ## Installation
 
 Pour installer Nodemon, se rendre dans les dossiers ./commande_dev et ./catalogue_dev
