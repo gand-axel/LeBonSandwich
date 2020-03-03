@@ -77,12 +77,13 @@ app.get("/categories/:id", (req, res) => {
   let data = {type: "ressource", date: [add0(dateJour.getDate()), add0(dateJour.getMonth()+1), dateJour.getFullYear()].join('-')};
   let url = req.url;
 
-  Category.find({id: req.params.id}, (err, result) => {
+  Category.find({id: req.params.id}, '-_id', (err, result) => {
     if (err) {
       res.status(500).send(err);
     }
-    data.categorie = result;
-    data.links = {sandwichs: `${url}/sandwichs`, self: `${url}`};
+
+    data.categorie = result[0];
+    data.links = {sandwichs: {href: `${url}/sandwichs`}, self: {href: `${url}`}};
     res.status(200).json(data);
   });
 });
