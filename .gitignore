@@ -1,5 +1,6 @@
 /commande_dev/node_modules
 /catalogue_dev/node_modules
+/point-de-vente_dev/node_modules
 
 # PhPStorm
 .idea

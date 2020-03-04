@@ -21,8 +21,6 @@ app.use(
   })
 );
 
-const db_name = "mongo.cat:dbcat/mongo";
-
 ////////////////////////////////////////////////////////////////
 
 // https://github.com/thebas57/LBS
@@ -30,6 +28,8 @@ const db_name = "mongo.cat:dbcat/mongo";
 ///////////////////////////////////////////////////////////////
 
 //connexion à la bdd mongo
+const db_name = "mongo.cat:dbcat/mongo";
+
 mongoose.connect("mongodb://" + db_name, {
   useNewUrlParser: true,
   useUnifiedTopology: true
