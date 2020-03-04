@@ -65,8 +65,8 @@ app.get("/commands/:id", async(req, res) => {
                             res.json({
                                 "type": "resource",
                                 "links": {
-                                    "self": "/commands/" + req.params.id + "/",
-                                    "items": "/commands/" + req.params.id + "/items/"
+                                    "self": "/commands/" + req.params.id + "/?token="+token,
+                                    "items": "/commands/" + req.params.id + "/items/?token="+token
                                 },
                                 "command": {
                                     "id": result1[0].id,
