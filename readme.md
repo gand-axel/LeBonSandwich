@@ -27,6 +27,10 @@ Pour installer Nodemon, se rendre dans les dossiers ./commande_dev, ./catalogue_
 
 > docker-compose exec mongo.cat mongoimport --db mongo --collection sandwichs --file /var/data/sandwichs.json --jsonArray
 
+## Re-Démarrer le projet après avoir importer toutes les données
+
+> docker-compose up
+
 ### API Commande
 
 #### urls
