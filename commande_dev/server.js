@@ -4,6 +4,8 @@ const bodyparser = require('body-parser');
 const express = require("express");
 const mysql = require("mysql");
 const uuid = require("uuid/v1");
+const bcrypt = require('bcrypt');
+const axios = require('axios');
 
 const PORT = 8080;
 const HOST = "0.0.0.0";
@@ -223,87 +225,147 @@ app.get("/*", (req, res) => {
 
 //POST
 
-app.post("/", (req, res) => {
-    let date = new Date()
-    let dateActu = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + (date.getHours() + 1) + ':' + date.getMinutes() + ':' + date.getSeconds();
+app.post("/commandes", (req, res) => {
+    res.setHeader('Content-Type', 'application/json;charset=utf-8');
+    let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
+    let id = uuid();
+    let hash = bcrypt.hashSync(id, 10);
+    let items = req.body.items;
+    let dateLivraison = new Date(req.body.livraison.date+" "+req.body.livraison.heure).toJSON().slice(0, 19).replace('T', ' ')
 
-    const patternMail = /^[a-z0-9.-]{2,}@+[a-z0-9.-]{2,}$/i;
-    const patternLivraison = /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/i;
+    const promises = [];
 
-    let uid = uuid();
+    items.forEach((item) => {
+        promises.push(
+            axios.get('http://catalogue:8080' + item.uri)
+            .then(function(result) {
+                return result.data[0].prix * item.q;
+            })
+            .catch(err => {
+                throw new Error(err)
+            })
+        );
+    });
 
-    const name = req.param('nom');
-    const email = req.param('mail');
-    const livraison = req.param('livraison');
-    let montant = 3 + (Math.random() * (50 - 3));
+    Promise.all(promises).then(result => {
+        let montant = 0;
+        result.forEach(m => { montant += m })
 
-    if (typeof email !== 'undefined' && typeof name !== 'undefined' && typeof livraison !== 'undefined') {
-        if (email.match(patternMail)) {
-            if (livraison.match(patternLivraison)) {
-                let query = `Insert into commande (id,created_at,updated_at,livraison,nom,mail,montant) values ('${uid}','${dateActu}','${dateActu}','${livraison}','${name}','${email}',${montant})`;
-                let newCommande = `Select * from commande where id = '${uid}'`;
-                db.query(query, (err, result) => {
-                    if (err) console.error(err);
-                    else {
-                        db.query(newCommande, (err, result) => {
-                            if (err) console.error(err);
-                            else {
-                                res.location('/commandes/' + uid);
-                                res.status(201).json(result);
-                            }
-                        })
-                    }
-                });
-            } else res.status(400).send('La date et l\'heure de la livraison ne sont pas au bont format : YYYY-MM-DD HH:MM:SS');
-        } else res.status(400).send('L\'email n\'est pas au bont format');
-    } else res.status(400).send('Veuillez entrer un nom, un mail et la date et l\'heure de livraison (nom, mail, livraison)');
-});
+        if (req.body.nom.trim() == "" || req.body.mail.trim() == "") res.status(404).json({ "type": "error", "error": 404, "message": "Tout les champs doivent être remplis!" })
+        else {
+            db.query(`INSERT INTO commande (id,livraison, nom, mail, created_at,updated_at, token,montant) VALUES  ("${id}","${dateLivraison}", "${req.body.nom}","${req.body.mail}","${dateAct}","${dateAct}" ,"${hash}","${montant}")`, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send(JSON.stringify(err));
+                } else {
+                    items.forEach(async item => {
+                        let libelle = "";
+                        let prix = 0;
 
-app.post("/:id", (req, res) => {
-    const id = req.params.id;
-
-    let date = new Date()
-    let dateActu = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + (date.getHours() + 1) + ':' + date.getMinutes() + ':' + date.getSeconds();
-
-    const patternMail = /^[a-z0-9.-]{2,}@+[a-z0-9.-]{2,}$/i;
-    const patternLivraison = /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01]) (00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$/i;
-
-    const name = req.param('nom');
-    const email = req.param('mail');
-    const livraison = req.param('livraison');
-
-    if (typeof email !== 'undefined' && typeof name !== 'undefined' && typeof livraison !== 'undefined') {
-        if (email.match(patternMail)) {
-            if (livraison.match(patternLivraison)) {
-                let query = `UPDATE commande SET nom = '${name}', mail = '${email}', updated_at = '${dateActu}', livraison = '${livraison}' where id = '${id}'`;
-                let newCommande = `Select * from commande where id = '${id}'`;
-                db.query(query, (err, result) => {
-                    if (result.affectedRows === 1) {
-                        if (err) console.error(err);
-                        else {
-                            db.query(newCommande, (err, result) => {
-                                if (err) console.error(err);
-                                else res.status(200).json(result);
+                        const item_promise = axios.get('http://catalogue:8080' + item.uri)
+                            .then(function(result) {
+                                prix = result.data[0].prix;
+                                libelle = result.data[0].nom;
+                                db.query(`INSERT INTO item (uri,libelle,tarif,quantite,command_id) VALUES ("${item.uri}","${libelle}","${prix}","${item.q}","${id}")`, (err, result) => {
+                                    if (err) {
+                                        console.error(err);
+                                        res.status(500).send(JSON.stringify(err));
+                                    }
+                                })
+                            })
+                            .catch(err => {
+                                throw new Error(err)
                             });
-                        }
-                    } else res.status(400).send('Erreur l\'id : "' + id + '" n\'existe pas');
-                })
-            } else res.status(400).send('La date et l\'heure de la livraison ne sont pas au bont format : YYYY-MM-DD HH:MM:SS');
-        } else res.status(400).send('L\'email n\'est pas au bont format');
-    } else res.status(400).send('Veuillez entrer un nom, un mail et la date et l\'heure de livraison (nom, mail, livraison)');
+                    });
+                    let resBody = req.body
+                    resBody.montant = montant
+                    resBody.id = id
+                    resBody.token = hash
+                    res.status(201).send(JSON.stringify({ commande: resBody }));
+                }
+            });
+
+        }
+    }).catch(err => {
+        throw new Error(err);
+    })
 });
+
+//PUT
+
+app.put("/commandes/:id", (req, res) => {
+    res.setHeader('Content-Type', 'application/json;charset=utf-8');
+    let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
+    let id = req.params.id;
+    let items = req.body.items;
+    let dateLivraison = new Date(req.body.livraison.date+" "+req.body.livraison.heure).toJSON().slice(0, 19).replace('T', ' ')
+
+    const promises = [];
+
+    items.forEach((item) => {
+        promises.push(
+            axios.get('http://catalogue:8080' + item.uri)
+            .then(function(result) {
+                return result.data[0].prix * item.q;
+            })
+            .catch(err => {
+                throw new Error(err)
+            })
+        );
+    });
+
+    Promise.all(promises).then(result => {
+        let montant = 0;
+        result.forEach(m => { montant += m })
+
+        if (req.body.nom.trim() == "" || req.body.mail.trim() == "") res.status(404).json({ "type": "error", "error": 404, "message": "Tout les champs doivent être remplis!" })
+        else {
+            db.query(`UPDATE commande SET livraison = '${dateLivraison}', nom = '${req.body.nom}', updated_at = '${dateAct}', mail = '${req.body.mail}', montant = '${montant}' where id = '${id}'`, (err, result) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send(JSON.stringify(err));
+                } else {
+                    db.query(`DELETE from item where command_id = '${id}'`, (err, result) => {
+                        if (err) {
+                            console.error(err);
+                            res.status(500).send(JSON.stringify(err));
+                        } else {
+                            items.forEach(async item => {
+                                let libelle = "";
+                                let prix = 0;
+
+                                axios.get('http://catalogue:8080' + item.uri)
+                                    .then(function(result) {
+                                        prix = result.data[0].prix;
+                                        libelle = result.data[0].nom;
+                                        db.query(`INSERT INTO item (uri,libelle,tarif,quantite,command_id) VALUES ("${item.uri}","${libelle}","${prix}","${item.q}","${id}")`, (err, result) => {
+                                            if (err) {
+                                                console.error(err);
+                                                res.status(500).send(JSON.stringify(err));
+                                            }
+                                        })
+                                    })
+                                    .catch(err => {
+                                        throw new Error(err)
+                                    });
+                            });
+                            let resBody = req.body
+                            resBody.montant = montant
+                            resBody.id = id
+                            res.status(200).send(JSON.stringify({ commande: resBody }));
+                        }
+                    })
+                }
+            });
+
+        }
+    }).catch(err => {
+        throw new Error(err);
+    })
+})
 
 // Les autres méthodes ne sont pas allowed
 
-app.put("/*", (req, res) => {
-    let erreur = {
-        "type": "error",
-        "error": 405,
-        "message": "Method not allowed"
-    }
-    JSON.stringify(erreur)
-    res.send(erreur)
-});
 
 app.delete("/*", (req, res) => {
     let erreur = {

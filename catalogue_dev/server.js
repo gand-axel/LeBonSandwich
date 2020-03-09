@@ -50,7 +50,7 @@ app.get("/sandwichs", (req, res) => {
 
 //récupération d'un sandwich
 app.get("/sandwichs/:id", (req, res) => {
-  Sandwich.findById(req.params.id, (err, result) => {
+  Sandwich.find({ref: req.params.id}, (err, result) => {
     if (err) {
       res.status(500).send(err);
     }
@@ -99,7 +99,7 @@ app.get("/categories/:id/sandwichs", (req, res) => {
       result_sandw.forEach(function (sandwich, index) {
         result_sandw[index] = JSON.parse(JSON.stringify({
             sandwich: sandwich,
-            links: {self: {href: "/sandwichs/" + sandwich.id + "/"}}
+            links: {self: {href: "/sandwichs/" + sandwich.ref + "/"}}
         }));
       })
 
