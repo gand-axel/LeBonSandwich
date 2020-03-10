@@ -2,6 +2,10 @@
 /catalogue_dev/node_modules
 /point-de-vente_dev/node_modules
 
+/commande_dev/package-lock.json
+/catalogue_dev/package-lock.json
+/point-de-vente_dev/package-lock.json
+
 # PhPStorm
 .idea
 
