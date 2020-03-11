@@ -16,6 +16,8 @@ Pour installer Nodemon, se rendre dans les dossiers ./commande_dev, ./catalogue_
 
 1. ./command_api/sql/command_lbs.schema.sql
 2. ./command_api/sql/command_lbs_data_1.sql
+3. ./command_api/sql/command_lbs_data_2.sql
+4. ./command_api/sql/client_lbs_data.sql
 
 ## Import des données de la base de données MongoDB
 

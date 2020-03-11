@@ -6,6 +6,7 @@ const mysql = require("mysql");
 const uuid = require("uuid/v1");
 const bcrypt = require('bcrypt');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 
 const PORT = 8080;
 const HOST = "0.0.0.0";
@@ -213,6 +214,40 @@ app.get('/commands/:id/items/', function (req, res) {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 });
 
+app.get("/clients/:id", (req, res) => {
+    if(req.headers.authorization && req.headers.authorization.split(' ')[0] == "Bearer") {
+        let token = req.headers.authorization.split(' ')[1]
+        jwt.verify(token, 'privateKeyApi', {algorithm: "HS256"}, (err) => {
+            if(err) res.status(401).json({ error: "Bad token"})
+            else {
+                db.query(`SELECT * FROM client WHERE id = "${req.params.id}"`, (err, result) => {
+                    if (err) {
+                        let erreur = {
+                            "type": "error",
+                            "error": 500,
+                            "message": err
+                        };
+                        JSON.stringify(erreur);
+                        res.send(erreur);
+                    } else if (result === "") {
+                        let erreur = {
+                            "type": "error",
+                            "error": 404,
+                            "message": req.params.id + " isn't a valid id"
+                        };
+                        JSON.stringify(erreur);
+                        res.send(erreur);
+                    } else {
+                        res.json({
+                            "client": result[0]
+                        })
+                    }
+                });
+            }
+        })
+    } else res.status(401).json({"type": "error","error": 401,"message": "no authorization Bearer header present"})
+})
+
 app.get("/*", (req, res) => {
     let erreur = {
         "type": "error",
@@ -226,7 +261,6 @@ app.get("/*", (req, res) => {
 //POST
 
 app.post("/commandes", (req, res) => {
-    res.setHeader('Content-Type', 'application/json;charset=utf-8');
     let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
     let id = uuid();
     let hash = bcrypt.hashSync(id, 10);
@@ -253,10 +287,41 @@ app.post("/commandes", (req, res) => {
 
         if (req.body.nom.trim() == "" || req.body.mail.trim() == "") res.status(404).json({ "type": "error", "error": 404, "message": "Tout les champs doivent être remplis!" })
         else {
-            db.query(`INSERT INTO commande (id,livraison, nom, mail, created_at,updated_at, token,montant) VALUES  ("${id}","${dateLivraison}", "${req.body.nom}","${req.body.mail}","${dateAct}","${dateAct}" ,"${hash}","${montant}")`, (err, result) => {
+            let query = `INSERT INTO commande (id,livraison, nom, mail, created_at,updated_at, token,montant) VALUES  ("${id}","${dateLivraison}", "${req.body.nom}","${req.body.mail}","${dateAct}","${dateAct}" ,"${hash}","${montant}")`
+            if(req.body.client_id) {
+                if(req.headers.authorization && req.headers.authorization.split(' ')[0] == "Bearer") {
+                    let token = req.headers.authorization.split(' ')[1]
+                    jwt.verify(token, 'privateKeyApi', {algorithm: "HS256"}, (err) => {
+                        if(err) res.status(401).json({ error: "Bad token"})
+                        else {
+                            db.query(`UPDATE client SET cumul_achats = cumul_achats + '${montant}' where id = '${req.body.client_id}'`, (err, result) => {
+                                if (err) {
+                                    let erreur = {
+                                        "type": "error",
+                                        "error": 500,
+                                        "message": err
+                                    };
+                                    JSON.stringify(erreur);
+                                    res.send(erreur);
+                                } else if (result === "") {
+                                    let erreur = {
+                                        "type": "error",
+                                        "error": 404,
+                                        "message": req.params.id + " isn't a valid id"
+                                    };
+                                    JSON.stringify(erreur);
+                                    res.send(erreur);
+                                }
+                            });
+                            query = `INSERT INTO commande (id,livraison, nom, mail, created_at,updated_at, token,montant,client_id) VALUES  ("${id}","${dateLivraison}", "${req.body.nom}","${req.body.mail}","${dateAct}","${dateAct}" ,"${hash}","${montant}","${req.body.client_id}")`
+                        }
+                    })
+                } else res.status(401).json({"type": "error","error": 401,"message": "no authorization Bearer header present"})
+            }
+            db.query(query, (err, result) => {
                 if (err) {
                     console.error(err);
-                    res.status(500).send(JSON.stringify(err));
+                    res.status(500).json(err);
                 } else {
                     items.forEach(async item => {
                         let libelle = "";
@@ -269,7 +334,7 @@ app.post("/commandes", (req, res) => {
                                 db.query(`INSERT INTO item (uri,libelle,tarif,quantite,command_id) VALUES ("${item.uri}","${libelle}","${prix}","${item.q}","${id}")`, (err, result) => {
                                     if (err) {
                                         console.error(err);
-                                        res.status(500).send(JSON.stringify(err));
+                                        res.status(500).json(err);
                                     }
                                 })
                             })
@@ -281,7 +346,7 @@ app.post("/commandes", (req, res) => {
                     resBody.montant = montant
                     resBody.id = id
                     resBody.token = hash
-                    res.status(201).send(JSON.stringify({ commande: resBody }));
+                    res.status(201).json({ commande: resBody });
                 }
             });
 
@@ -291,10 +356,58 @@ app.post("/commandes", (req, res) => {
     })
 });
 
+app.post("/clients", (req, res) => {
+    let pwd = bcrypt.hashSync(req.body.passwd, 10);
+    let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
+    db.query(`INSERT INTO client (nom_client,mail_client,passwd,cumul_achats,created_at,updated_at) VALUES ("${req.body.nom_client}","${req.body.mail_client}","${pwd}",0,"${dateAct}","${dateAct}")`, (err, result) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send(JSON.stringify(err));
+        } else {
+            res.status(201).json(req.body)
+        }
+    })
+})
+
+app.post("/clients/:id/auth", (req, res) => {
+    let mail, passwd;
+
+    if(req.headers.authorization) {
+        const base64Credentials = req.headers.authorization.split(' ')[1]
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii')
+        mail = credentials.split(':')[0]
+        passwd = credentials.split(':')[1]
+
+        db.query(`select mail_client, passwd from client where id = "${req.params.id}"`, (err, result) => {
+            if (err) {
+                let erreur = {
+                    "type": "error",
+                    "error": 500,
+                    "message": err
+                };
+                JSON.stringify(erreur);
+                res.send(erreur);
+            } else if (result === "") {
+                let erreur = {
+                    "type": "error",
+                    "error": 404,
+                    "message": req.params.id + " isn't a valid id"
+                };
+                JSON.stringify(erreur);
+                res.send(erreur);
+            } else {
+                if(mail == result[0].mail_client && bcrypt.compareSync(passwd, result[0].passwd)) {
+                    let token = jwt.sign({}, 'privateKeyApi', {algorithm: 'HS256'})
+                    res.json({token: token})
+                } else res.status(401).json({"type": "error","error": 401,"message": "Bad mail or password"})
+            }
+        })
+    } else res.status(401).json({"type": "error","error": 401,"message": "no authorization header present"})
+})
+
 //PUT
 
 app.put("/commandes/:id", (req, res) => {
-    res.setHeader('Content-Type', 'application/json;charset=utf-8');
     let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
     let id = req.params.id;
     let items = req.body.items;
@@ -323,12 +436,12 @@ app.put("/commandes/:id", (req, res) => {
             db.query(`UPDATE commande SET livraison = '${dateLivraison}', nom = '${req.body.nom}', updated_at = '${dateAct}', mail = '${req.body.mail}', montant = '${montant}' where id = '${id}'`, (err, result) => {
                 if (err) {
                     console.error(err);
-                    res.status(500).send(JSON.stringify(err));
+                    res.status(500).json(err);
                 } else {
                     db.query(`DELETE from item where command_id = '${id}'`, (err, result) => {
                         if (err) {
                             console.error(err);
-                            res.status(500).send(JSON.stringify(err));
+                            res.status(500).json(err);
                         } else {
                             items.forEach(async item => {
                                 let libelle = "";
@@ -341,7 +454,7 @@ app.put("/commandes/:id", (req, res) => {
                                         db.query(`INSERT INTO item (uri,libelle,tarif,quantite,command_id) VALUES ("${item.uri}","${libelle}","${prix}","${item.q}","${id}")`, (err, result) => {
                                             if (err) {
                                                 console.error(err);
-                                                res.status(500).send(JSON.stringify(err));
+                                                res.status(500).json(err);
                                             }
                                         })
                                     })
@@ -352,7 +465,7 @@ app.put("/commandes/:id", (req, res) => {
                             let resBody = req.body
                             resBody.montant = montant
                             resBody.id = id
-                            res.status(200).send(JSON.stringify({ commande: resBody }));
+                            res.status(200).json({ commande: resBody });
                         }
                     })
                 }
