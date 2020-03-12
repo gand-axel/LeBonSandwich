@@ -28,6 +28,8 @@ var corsOptions = {
 }
 app.use(cors(corsOptions))
 
+// GET
+
 app.get("/", (req, res) => {
     res.send("Commande API\n");
 });

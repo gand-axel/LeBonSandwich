@@ -1,7 +1,7 @@
 {
   "name": "Le Bon Sandwich",
   "version": "1.0.0",
-  "description": "",
+  "description": "API REST Le Bon Sandwich",
   "title": "ApiDoc LBS",
   "url": "",
   "sampleUrl": false,
@@ -9,7 +9,7 @@
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2020-03-12T16:45:22.558Z",
+    "time": "2020-03-12T16:53:50.741Z",
     "url": "http://apidocjs.com",
     "version": "0.20.0"
   }
