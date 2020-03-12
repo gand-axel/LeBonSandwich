@@ -207,7 +207,7 @@ app.get('/commands/:id/items/', function (req, res) {
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else if (result === "") {
+                        } else if (result.length == 0) {
                             let erreur = {
                                 "type": "error",
                                 "error": 404,
@@ -242,7 +242,7 @@ app.get("/clients/:id", (req, res) => {
                         };
                         JSON.stringify(erreur);
                         res.send(erreur);
-                    } else if (result === "") {
+                    } else if (result.length == 0) {
                         let erreur = {
                             "type": "error",
                             "error": 404,
@@ -309,7 +309,7 @@ app.post("/commandes", (req, res) => {
                                 };
                                 JSON.stringify(erreur);
                                 res.send(erreur);
-                            } else if (result === "") {
+                            } else if (result.length == 0) {
                                 let erreur = {
                                     "type": "error",
                                     "error": 404,
@@ -391,7 +391,7 @@ app.post("/clients/:id/auth", (req, res) => {
                 };
                 JSON.stringify(erreur);
                 res.send(erreur);
-            } else if (result === "") {
+            } else if (result.length == 0) {
                 let erreur = {
                     "type": "error",
                     "error": 404,
@@ -478,7 +478,7 @@ app.put("/clients/:id", (req, res) => {
                 };
                 JSON.stringify(erreur);
                 res.send(erreur);
-            } else if (result === "") {
+            } else if (result.length == 0) {
                 let erreur = {
                     "type": "error",
                     "error": 404,
@@ -548,7 +548,7 @@ app.delete("/commandes/:id", (req, res) => {
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else if (result === "") {
+                        } else if (result.length == 0) {
                             let erreur = {
                                 "type": "error",
                                 "error": 404,
@@ -584,7 +584,7 @@ app.delete("/clients/:id", (req, res) => {
                 };
                 JSON.stringify(erreur);
                 res.send(erreur);
-            } else if (result === "") {
+            } else if (result.length == 0) {
                 let erreur = {
                     "type": "error",
                     "error": 404,
