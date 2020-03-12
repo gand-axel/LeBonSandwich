@@ -12,10 +12,10 @@
   "author": "Alexandre Leroux <alex@sherpa.one> (https://sherpa.one)",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongoose": "^5.8.9",
-    "nodemon": "^2.0.2",
-    "uuid": "^3.4.0"
+    "nodemon": "^2.0.2"
   },
   "devDependencies": {}
 }

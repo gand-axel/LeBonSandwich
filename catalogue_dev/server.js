@@ -3,7 +3,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const uuidv1 = require('uuid/v1');
+const cors = require('cors')
 
 //import du modèle de données Category défini avec Mongoose
 const Category = require("./models/Category");
@@ -21,6 +21,16 @@ app.use(
   })
 );
 
+var corsOptions = {
+  origin: function (origin, callback) {
+      if (!origin) {
+        console.warn("Warning : Missing 'Origin' header")
+      }
+      callback(null, true)
+  }
+}
+app.use(cors(corsOptions))
+
 //connexion à la bdd mongo
 const db_name = "mongo.cat:dbcat/mongo";
 
@@ -28,6 +38,8 @@ mongoose.connect("mongodb://" + db_name, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+
+// GET
 
 app.get("/", (req, res) => {
   res.send("Catalogue API\n");
@@ -47,6 +59,9 @@ app.get("/sandwichs/:id", (req, res) => {
   Sandwich.find({ref: req.params.id}, (err, result) => {
     if (err) {
       res.status(500).send(err);
+    }
+    if(result.length == 0) {
+      res.status(404).json({"type": "error", "error" : 404,"message" : "ressource non disponible"})
     }
 
     res.status(200).json(result);
@@ -75,6 +90,9 @@ app.get("/categories/:id", (req, res) => {
     if (err) {
       res.status(500).send(err);
     }
+    if(result.length == 0) {
+      res.status(404).json({"type": "error", "error" : 404,"message" : "ressource non disponible"})
+    }
 
     data.categorie = result[0];
     data.links = {sandwichs: {href: `${url}/sandwichs`}, self: {href: `${url}`}};
@@ -86,6 +104,9 @@ app.get("/categories/:id", (req, res) => {
 app.get("/categories/:id/sandwichs", (req, res) => {
   Category.find({id: req.params.id}, (err, result) => {
     if (err) res.status(500).send(err);
+    if(result.length == 0) {
+      res.status(404).json({"type": "error", "error" : 404,"message" : "ressource non disponible"})
+    }
     Sandwich.find({categories: result[0].nom},(err_sandw,result_sandw) => {
       if (err_sandw) res.status(500).send(err);
       let count = result_sandw.length;
@@ -105,6 +126,8 @@ app.get("/categories/:id/sandwichs", (req, res) => {
     })
   });
 });
+
+// POST
 
 //ajout d'une nouvelle catégorie
 app.post("/categories", (req, res) => {
@@ -156,6 +179,18 @@ function get_next_id() {
     });
   });
 }
+
+// Les autres méthodes ne sont pas allowed
+
+app.all("/*", (req, res) => {
+  let erreur = {
+      "type": "error",
+      "error": 400,
+      "message": "BAD REQUEST"
+  }
+  JSON.stringify(erreur)
+  res.send(erreur)
+});
 
 app.listen(PORT, HOST);
 console.log(`Catalogue API Running on http://${HOST}:${PORT}`);
