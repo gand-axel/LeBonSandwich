@@ -65,3 +65,9 @@ http://localhost:8080
 ## Stopper le projet
 
 > ctrl + c
+
+## Générer la javadoc
+
+Supprimer le dossier apiDoc et entrer la commande suivante à la racine du projet :
+
+> apidoc -e "(node_modules)" -o apiDoc
