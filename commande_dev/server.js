@@ -548,19 +548,21 @@ app.delete("/commandes/:id", (req, res) => {
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else if (result === "") {
+                        }
+                    })
+                    db.query(`delete from item where command_id = "${req.params.id}"`, (err, result) => {
+                        if (err) {
                             let erreur = {
                                 "type": "error",
-                                "error": 404,
-                                "message": req.params.id + " isn't a valid id"
+                                "error": 500,
+                                "message": err
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else {
-                            res.send("Commande deleted.")
                         }
                     })
-                }
+                    res.send("Commande deleted.")
+                } else res.status(400).send("Le token '"+token+"' ne correspond pas au token de la commande");
             }
         });
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
