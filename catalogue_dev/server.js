@@ -45,7 +45,17 @@ app.get("/", (req, res) => {
   res.send("Catalogue API\n");
 });
 
-//récupération de tous les sandwichs
+/**
+* @api {get} /sandwichs  Requête pour avoir la liste de tous les sandwichs
+* @apiName GetSandwichs
+* @apiGroup Catalogue
+*
+* @apiSuccess {String} type  Type de la réponse
+*
+* @apiErrorExample {json} Get Error
+*    HTTP/1.1 500 Internal Server Error
+*
+*/
 app.get("/sandwichs", (req, res) => {
   Sandwich.find({}, (err, result) => {
     if (err) res.status(500).send(err);

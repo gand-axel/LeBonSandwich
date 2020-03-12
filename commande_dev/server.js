@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const validator = require('validator');
-const cors = require('cors')
+const cors = require('cors');
 
 const PORT = 8080;
 const HOST = "0.0.0.0";
@@ -28,12 +28,71 @@ var corsOptions = {
 }
 app.use(cors(corsOptions))
 
-//GET
+// GET
 
 app.get("/", (req, res) => {
     res.send("Commande API\n");
 });
 
+/**
+ * @api {get} /commands Requête pour avoir la liste de toutes les commandes
+ * @apiName GetCommands
+ * @apiGroup Commande
+ *
+ * @apiSuccess {String} type  Type de la réponse.
+ * @apiSuccess {Number} count  Nombre de résultats.
+ * @apiSuccess {Number} size  Nombre de commandes retournées.
+ * @apiSuccess {Object} links  Liste des liens des pages des résultats.
+ * @apiSuccess {Link} links.next  Lien de la page suivante des résultats.
+ * @apiSuccess {Link} links.prev  Lien de la page précédente des résultats.
+ * @apiSuccess {Link} links.last  Lien de la dernière page des résultats.
+ * @apiSuccess {Link} links.first  Lien de la première page des résultats.
+ * @apiSuccess {Objetc} commands  Listes des commandes.
+ * @apiSuccess {Objetc} commands.command  Détail d'une commande.
+ * @apiSuccess {String} commands.command.id  ID de la commande.
+ * @apiSuccess {String} commands.command.nom  Nom de la commande.
+ * @apiSuccess {String} commands.command.created_at  Date de création de la commande.
+ * @apiSuccess {String} commands.command.livraison  Date de livraison de la commande.
+ * @apiSuccess {Number} commands.command.status  Status de la commande.
+ * @apiSuccess {Object} commands.links  Liens vers les ressources associés à la commande.
+ * @apiSuccess {Link} commands.links.self  Lien pour avoir des informations sur la commande.
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "type": "collection",
+ *       "count": 1510,
+ *       "size": 10,
+ *       "links": {
+ *          "next": {
+ *              "href": "/commands/?page=2&size=10"
+ *          },
+ *          "prev": {
+ *              "href": "/commands/?page=1&size=10"
+ *          },
+ *          "last": {
+ *              "href": "/commands/?page=151&size=10"
+ *          },
+ *          "first": {
+ *              "href": "/commands/?page=1&size=10"
+ *          }
+ *       },
+ *       "commands": [
+ *          {
+ *              "command": {
+ *                  "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *                  "nom": "Lopez",
+ *                  "created_at": "2019-11-08T13:49:40.000Z",
+ *                  "livraison": "2019-11-08T13:50:17.000Z",
+ *                  "status": 2
+ *              },
+ *              "links": {
+ *                  "self": {
+ *                      "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/"
+ *                  }
+ *              }
+ *          }
+ *       ]
+ *     }
+ */
 app.get('/commands', function (req, res) {
     let status = req.param('s');
     let page = req.param('page');
@@ -548,19 +607,21 @@ app.delete("/commandes/:id", (req, res) => {
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else if (result.length == 0) {
+                        }
+                    })
+                    db.query(`delete from item where command_id = "${req.params.id}"`, (err, result) => {
+                        if (err) {
                             let erreur = {
                                 "type": "error",
-                                "error": 404,
-                                "message": req.params.id + " isn't a valid id"
+                                "error": 500,
+                                "message": err
                             };
                             JSON.stringify(erreur);
                             res.send(erreur);
-                        } else {
-                            res.send("Commande deleted.")
                         }
                     })
-                }
+                    res.send("Commande deleted.")
+                } else res.status(400).send("Le token '"+token+"' ne correspond pas au token de la commande");
             }
         });
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
