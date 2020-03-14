@@ -70,7 +70,7 @@ app.get("/", (req, res) => {
  *      "prix": "6.50"
  *  }
  *
- * @apiError (Error 5xx) InternalServerError Erreur Serveur
+ * @apiError (Error 5xx) 500 Erreur Serveur
  *
  * @apiErrorExample {json} Error-Response:
  *    HTTP/1.1 500 Internal Server Error
@@ -113,8 +113,8 @@ app.get("/sandwichs", (req, res) => {
  *   }
  * ]
  *
- * @apiError (Error 5xx) InternalServerError Erreur Serveur
- * @apiError SandwichNotFound L'id du sandwich n'existe pas
+ * @apiError (Error 5xx) 500 Erreur Serveur
+ * @apiError 404 L'id du sandwich n'existe pas
  *
  * @apiErrorExample {json} Error-Response:
  * {
@@ -152,7 +152,7 @@ app.get("/sandwichs/:id", (req, res) => {
  *      "nom": "chaud",
  *      "description": "nos sandwiches et boissons chaudes"
  *  }
- * @apiError (Error 5xx) InternalServerError Erreur Serveur
+ * @apiError (Error 5xx) 500 Erreur Serveur
  *
  * @apiErrorExample {json} Error-Response:
  *    HTTP/1.1 500 Internal Server Error
@@ -201,8 +201,8 @@ app.get("/categories", (req, res) => {
  *      }
  *  }
  *}
- * @apiError (Error 5xx) InternalServerError Erreur Serveur
- * @apiError CategorieNotFound L'id de la catégorie est introuvable
+ * @apiError (Error 5xx) 500 Erreur Serveur
+ * @apiError 404 L'id de la catégorie est introuvable
  *
  * @apiErrorExample {json} Error-Response:
  * {
@@ -277,8 +277,8 @@ app.get("/categories/:id", (req, res) => {
  *      }
  *      ]
  * }
- * @apiError (Error 5xx) InternalServerError Erreur Serveur
- * @apiError CategorieNotFound L'id de la catégorie est introuvable
+ * @apiError (Error 5xx) 500 Erreur Serveur
+ * @apiError 404 L'id de la catégorie est introuvable
  *
  * @apiErrorExample {json} Error-Response:
  * {
@@ -320,8 +320,15 @@ app.get("/categories/:id/sandwichs", (req, res) => {
  * @apiName AddCategorie
  * @apiGroup Catalogue
  *
+ * @apiHeader {Object} body  Informations de la catégorie à mettre en json.
  *
- * @apiError NotAcceptable Mauvaise requête
+ * @apiParamExample {json} Request-Example:
+ * {
+ *  "nom": "France",
+ *	"description": "Sandwich purement français"
+ * }
+ *
+ * @apiError 406 Mauvaise requête
  *
  * @apiErrorExample {String} Error-Response:
  *    NotAcceptable
@@ -335,10 +342,7 @@ app.post("/categories", (req, res) => {
         res.status(406).send("Not Acceptable");
     } else {
 
-        //la méthode get_next_id est asynchrone. Elle retourne un résultat sous forme de Promesse.
         get_next_id().then(result => {
-
-
 
             //sinon on créé dynamiquement un nouvel id de type numérique auto-incrémenté comme ce serait le cas dans une bdd MySQL
             req.body.id = result;
@@ -363,9 +367,6 @@ app.post("/categories", (req, res) => {
 
     }
 });
-
-//get_next_id fourni la valeur du prochain id numérique disponible
-//ne pas confondre l'attribut _id de type alphanumérique automatiquement renseigné par MongoDB
 //et l'attribut id de type numérique entier dont la valeur est auto-incrémentale, généré par la méthode get_next_id
 function get_next_id() {
     return new Promise((resolve, reject) => {
