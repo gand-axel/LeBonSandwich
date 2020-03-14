@@ -35,7 +35,8 @@ app.get("/", (req, res) => {
 });
 
 /**
- * @api {get} /commands Requête pour avoir la liste de toutes les commandes
+ * @api {get} /commands Affichage commande
+ * @apiDescription Requête pour afficher la liste de toutes les commandes.
  * @apiName GetCommands
  * @apiGroup Commande
  *
@@ -47,15 +48,16 @@ app.get("/", (req, res) => {
  * @apiSuccess {Link} links.prev  Lien de la page précédente des résultats.
  * @apiSuccess {Link} links.last  Lien de la dernière page des résultats.
  * @apiSuccess {Link} links.first  Lien de la première page des résultats.
- * @apiSuccess {Objetc} commands  Listes des commandes.
- * @apiSuccess {Objetc} commands.command  Détail d'une commande.
+ * @apiSuccess {Object} commands  Listes des commandes.
+ * @apiSuccess {Object} commands.command  Détail d'une commande.
  * @apiSuccess {String} commands.command.id  ID de la commande.
- * @apiSuccess {String} commands.command.nom  Nom de la commande.
+ * @apiSuccess {String} commands.command.nom  Nom du client.
  * @apiSuccess {String} commands.command.created_at  Date de création de la commande.
  * @apiSuccess {String} commands.command.livraison  Date de livraison de la commande.
  * @apiSuccess {Number} commands.command.status  Status de la commande.
  * @apiSuccess {Object} commands.links  Liens vers les ressources associés à la commande.
- * @apiSuccess {Link} commands.links.self  Lien pour avoir des informations sur la commande.
+ * @apiSuccess {Link} commands.links.self  Lien pour afficher les informations sur la commande.
+ * 
  * @apiSuccessExample {json} Success-Response:
  *     {
  *       "type": "collection",
@@ -162,6 +164,84 @@ app.get('/commands', function (req, res) {
     })
 })
 
+/**
+ * @api {get} /commands/:id Informations commande
+ * @apiDescription Requête pour afficher les informations d'une commande.
+ * @apiName GetCommandsId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {String} type  Type de la réponse.
+ * @apiSuccess {Object} links  Liste des liens.
+ * @apiSuccess {Link} links.self  Lien pour afficher les informations sur la commande.
+ * @apiSuccess {Link} links.items  Lien pour afficher les sandwichs de la commande.
+ * @apiSuccess {Object} command  Détails de la commande.
+ * @apiSuccess {String} command.id  ID de la commande.
+ * @apiSuccess {String} command.created_at  Date de création de la commande.
+ * @apiSuccess {String} command.livraison  Date de livraison de la commande.
+ * @apiSuccess {String} command.nom  Nom du client.
+ * @apiSuccess {String} command.mail  Adresse mail du client.
+ * @apiSuccess {Number} command.montant  Montant de la commande.
+ * @apiSuccess {Number} command.status  Status de la commande.
+ * @apiSuccess {Object} command.items  Liste des sandwichs de la commande.
+ * @apiSuccess {Link} command.items.uri  Lien pour afficher les ingrédients du sandwich.
+ * @apiSuccess {String} command.items.libelle  Nom du sandwich.
+ * @apiSuccess {Number} command.items.tarif  Prix du sandwich.
+ * @apiSuccess {Number} command.items.quantite  Quantité de sandwich commandé.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "type": "resource",
+ *       "links": {
+ *          "self": {
+ *              "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/?token=ztb6Gd62We.sdtSnTH44iY5sF3.$HB65l66ErEFpGvf2.f4d4H5y"
+ *          },
+ *          "items": {
+ *              "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/items/?token=ztb6Gd62We.sdtSnTH44iY5sF3.$HB65l66ErEFpGvf2.f4d4H5y"
+ *          }
+ *       },
+ *       "command": {
+ *          "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *          "created_at": "2019-11-08T13:49:40.000Z",
+ *          "livraison": "2019-11-08T13:50:17.000Z",
+ *          "nom": "Lopez",
+ *          "mail": "lopez@gmail.com",
+ *          "montant": 9,
+ *          "status": 2,
+ *          "items": [
+ *              {
+ *                  "uri": "/sandwichs/s19002",
+ *                  "libelle": "le jambon beurre",
+ *                  "tarif": 4.5,
+ *                  "quantité": 2
+ *              }
+ *          ]
+ *       }
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.get("/commands/:id", async(req, res) => {
     let token = null;
 
@@ -231,6 +311,54 @@ app.get("/commands/:id", async(req, res) => {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 });
 
+/**
+ * @api {get} /commands/:id/items Affichage sandwichs
+ * @apiDescription Requête pour afficher la liste des sandwichs d'une commande.
+ * @apiName GetCommandsIdItems
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {Object} items  Liste des sandwichs de la commande.
+ * @apiSuccess {Link} items.uri  Lien pour afficher les ingrédients du sandwich.
+ * @apiSuccess {String} items.libelle  Nom du sandwich.
+ * @apiSuccess {Number} items.tarif  Prix du sandwich.
+ * @apiSuccess {Number} items.quantite  Quantité de sandwich commandé.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "items": [
+ *          {
+ *              "uri": "/sandwichs/s19002",
+ *              "libelle": "le jambon beurre",
+ *              "tarif": 4.5,
+ *              "quantité": 1
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.get('/commands/:id/items/', function (req, res) {
     let token = null;
 
@@ -286,6 +414,62 @@ app.get('/commands/:id/items/', function (req, res) {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 });
 
+/**
+ * @api {get} /clients/:id Affichage client
+ * @apiDescription Requête pour afficher les informations d'un client.
+ * @apiName GetClientsId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} authorization  Token JWT à renseigner en tant que paramètre Authorization Bearer.
+ * 
+ * @apiParam {Number} id  ID du client.
+ *
+ * @apiSuccess {Object} client  Informations sur le client.
+ * @apiSuccess {Number} client.id  ID du client.
+ * @apiSuccess {String} client.nom_client  Nom du client.
+ * @apiSuccess {String} client.mail_client  Adresse mail du client.
+ * @apiSuccess {String} client.passwd  Mot de passe du client.
+ * @apiSuccess {Number} client.cumul_achats  Dépenses du client.
+ * @apiSuccess {String} client.created_at  Date de création du client.
+ * @apiSuccess {String} client.updated_at  Date de modification du client.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "client": [
+ *          {
+ *              "id": 55,
+ *              "nom_client": "Louise Joubert",
+ *              "mail_client": "Louise.Joubert@live.com",
+ *              "passwd": "$2y$10$d9x6rHHrGq6wqp2/YnujoOuNeMttm.CkHUnyOSmpCPyYEq7MGYtFq",
+ *              "cumul_achats": 17.81,
+ *              "created_at": "2019-11-18 14:10:18",
+ *              "updated_at": "2019-11-18 14:10:18"
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 401 Aucune Authorization Bearer présent dans le Header ou mauvais token.
+ * @apiError 404 ID Client Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "no authorization Bearer header present"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "error": "Bad token"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "1258 isn't a valid id"
+ *     }
+ */
 app.get("/clients/:id", (req, res) => {
     if(req.headers.authorization && req.headers.authorization.split(' ')[0] == "Bearer") {
         let token = req.headers.authorization.split(' ')[1]
@@ -419,6 +603,32 @@ app.post("/commandes", (req, res) => {
     })
 });
 
+/**
+ * @api {post} /clients Ajouter client
+ * @apiDescription Requête pour créer un nouveau client.
+ * @apiName PostClients
+ * @apiGroup Commande
+ * 
+ * @apiHeader {Object} body  Informations du client à renseigner en json.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "nom_client": "missler quentin",
+ *       "mail_client": "quentin@missler.me",
+ *       "passwd": "motdepasse"
+ *     }
+ *
+ * @apiSuccess {String} nom_client  Nom du client.
+ * @apiSuccess {String} mail_client  Adresse mail du client.
+ * @apiSuccess {String} passwd  Mot de passe du client.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "nom_client": "missler quentin",
+ *       "mail_client": "quentin@missler.me",
+ *       "passwd": "motdepasse"
+ *     }
+ */
 app.post("/clients", (req, res) => {
     let pwd = bcrypt.hashSync(req.body.passwd, 10);
     let dateAct = new Date().toJSON().slice(0, 19).replace('T', ' ')
@@ -432,6 +642,48 @@ app.post("/clients", (req, res) => {
     })
 })
 
+/**
+ * @api {post} /clients/:id/auth Token auth client
+ * @apiDescription Requête pour récupérer le token d'authentification du client.
+ * @apiName PostClientsIdAuth
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} username  Adresse mail du client - Authorization (Basic Auth).
+ * @apiHeader {String} password  Mot de passe du client - Authorization (Basic Auth).
+ * 
+ * @apiParam {Number} id  ID du client.
+ * 
+ * @apiSuccess {String} token  Token d'authentification.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "token": "ztb6Gd62We.sdtSnTH44iY5sF3.$HB65l66ErEFpGvf2.f4d4H5y"
+ *     }
+ * 
+ * @apiError 401 Aucune Authorization Bearer présent dans le Header ou mauvaise adresse mail ou mot de passe.
+ * @apiError 404 ID Client Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "no authorization header present"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "Bad mail or password"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "1258 isn't a valid id"
+ *     }
+ */
 app.post("/clients/:id/auth", (req, res) => {
     let mail, passwd;
 
@@ -470,6 +722,79 @@ app.post("/clients/:id/auth", (req, res) => {
 
 //PUT
 
+/**
+ * @api {put} /commandes/:id Modifier commande
+ * @apiDescription Requête pour modifier la livraison d'une commande.
+ * @apiName PutCommandesId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * @apiHeader {Object} body  Informations de la livraison de la commande à renseigner en json.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "livraison": {
+ *          "date": "2020-03-14",
+ *          "heure": "12:34:56"
+ *       }
+ *     }
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {Object} commande  Détails de la commande.
+ * @apiSuccess {String} commande.id  ID de la commande.
+ * @apiSuccess {Object} commande.livraison  Date de livraison de la commande.
+ * @apiSuccess {String} commande.livraison.date  Date de livraison.
+ * @apiSuccess {String} commande.livraison.heure  Heure de livraison.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "commande": [
+ *          {
+ *              "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *              "livraison": {
+ *                  "date": "2020-03-14",
+ *                  "heure": "12:34:56"
+ *              }
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token ou mauvaises informations concernant la livraison.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrez les informations suivantes :date et heure de livraison."
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Date/Heure de livraison non valide"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "La Date/Heure de livraison doit être future à la date actuelle"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.put("/commandes/:id", (req, res) => {
     let token = null;
 
@@ -519,6 +844,67 @@ app.put("/commandes/:id", (req, res) => {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 })
 
+/**
+ * @api {put} /clients/:id Modifier client
+ * @apiDescription Requête pour modifier les informations d'un client.
+ * @apiName PutClientsId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} username  Adresse mail du client - Authorization (Basic Auth).
+ * @apiHeader {String} password  Mot de passe du client - Authorization (Basic Auth).
+ * @apiHeader {Object} body  Informations du client à renseigner en json.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "nom_client": "Axel GAND",
+ *       "mail_client" "axel.gand5@gmail.com",
+ *       "passwd": "motdepasse"
+ *     }
+ * 
+ * @apiParam {Number} id  ID du client.
+ * 
+ * @apiSuccess {Object} client  Informations sur le client.
+ * @apiSuccess {String} client.id  ID du client.
+ * @apiSuccess {String} client.nom_client  Nom du client.
+ * @apiSuccess {String} client.mail_client  Adresse mail du client.
+ * @apiSuccess {String} client.passwd  Mot de passe du client.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "client": [
+ *          {
+ *              "id": "112",
+ *              "nom_client": "Axel GAND",
+ *              "mail_client" "axel.gand5@gmail.com",
+ *              "passwd": "motdepasse"
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 401 Aucune Authorization Bearer présent dans le Header ou mauvaise adresse mail ou mot de passe.
+ * @apiError 404 ID Client Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "no authorization header present"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "Bad mail or password"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "1258 isn't a valid id"
+ *     }
+ */
 app.put("/clients/:id", (req, res) => {
     let mail, passwd;
 
@@ -561,7 +947,7 @@ app.put("/clients/:id", (req, res) => {
                         } else {
                             let resBody = req.body
                             resBody.id = req.params.id
-                            res.status(200).json({ commande: resBody });
+                            res.status(200).json({ client: resBody });
                         }
                     })
                 } else res.status(401).json({"type": "error","error": 401,"message": "Bad mail or password"})
@@ -572,6 +958,41 @@ app.put("/clients/:id", (req, res) => {
 
 // DELETE
 
+/**
+ * @api {delete} /commandes/:id Supprimer commande
+ * @apiDescription Requête pour supprimer une commande.
+ * @apiName DeleteCommandesId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "Commande deleted."
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.delete("/commandes/:id", (req, res) => {
     let token = null;
 
@@ -627,6 +1048,46 @@ app.delete("/commandes/:id", (req, res) => {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 })
 
+/**
+ * @api {delete} /clients/:id Supprimer client
+ * @apiDescription Requête pour supprimer un client.
+ * @apiName DeleteClientsId
+ * @apiGroup Commande
+ * 
+ * @apiHeader {String} username  Adresse mail du client - Authorization (Basic Auth).
+ * @apiHeader {String} password  Mot de passe du client - Authorization (Basic Auth).
+ * 
+ * @apiParam {Number} id  ID du client.
+ *
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "Client deleted."
+ *     }
+ * 
+ * @apiError 401 Aucune Authorization Bearer présent dans le Header ou mauvaise adresse mail ou mot de passe.
+ * @apiError 404 ID Client Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "no authorization header present"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "Bad mail or password"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "1258 isn't a valid id"
+ *     }
+ */
 app.delete("/clients/:id", (req, res) => {
     let mail, passwd;
 
