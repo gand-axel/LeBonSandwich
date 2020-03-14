@@ -29,6 +29,67 @@ app.get("/", (req, res) => {
     res.send("Point de vente API\n");
 });
 
+/**
+ * @api {get} /commands Affichage commandes
+ * @apiDescription Requête pour afficher la liste de toutes les commandes.
+ * @apiName GetCommands
+ * @apiGroup Point de vente
+ *
+ * @apiSuccess {String} type  Type de la réponse.
+ * @apiSuccess {Number} count  Nombre de résultats.
+ * @apiSuccess {Number} size  Nombre de commandes retournées.
+ * @apiSuccess {Object} links  Liste des liens des pages des résultats.
+ * @apiSuccess {Link} links.next  Lien de la page suivante des résultats.
+ * @apiSuccess {Link} links.prev  Lien de la page précédente des résultats.
+ * @apiSuccess {Link} links.last  Lien de la dernière page des résultats.
+ * @apiSuccess {Link} links.first  Lien de la première page des résultats.
+ * @apiSuccess {Object} commands  Listes des commandes.
+ * @apiSuccess {Object} commands.command  Détail d'une commande.
+ * @apiSuccess {String} commands.command.id  ID de la commande.
+ * @apiSuccess {String} commands.command.nom  Nom du client.
+ * @apiSuccess {String} commands.command.created_at  Date de création de la commande.
+ * @apiSuccess {String} commands.command.livraison  Date de livraison de la commande.
+ * @apiSuccess {Number} commands.command.status  Status de la commande.
+ * @apiSuccess {Object} commands.links  Liens vers les ressources associés à la commande.
+ * @apiSuccess {Link} commands.links.self  Lien pour afficher les informations sur la commande.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "type": "collection",
+ *       "count": 1510,
+ *       "size": 10,
+ *       "links": {
+ *          "next": {
+ *              "href": "/commands/?page=2&size=10"
+ *          },
+ *          "prev": {
+ *              "href": "/commands/?page=1&size=10"
+ *          },
+ *          "last": {
+ *              "href": "/commands/?page=151&size=10"
+ *          },
+ *          "first": {
+ *              "href": "/commands/?page=1&size=10"
+ *          }
+ *       },
+ *       "commands": [
+ *          {
+ *              "command": {
+ *                  "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *                  "nom": "Lopez",
+ *                  "created_at": "2019-11-08T13:49:40.000Z",
+ *                  "livraison": "2019-11-08T13:50:17.000Z",
+ *                  "status": 2
+ *              },
+ *              "links": {
+ *                  "self": {
+ *                      "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/"
+ *                  }
+ *              }
+ *          }
+ *       ]
+ *     }
+ */
 app.get('/commands', function (req, res) {
     let status = req.param('s');
     let page = req.param('page');
@@ -98,6 +159,84 @@ app.get('/commands', function (req, res) {
     })
 })
 
+/**
+ * @api {get} /commands/:id Informations commande
+ * @apiDescription Requête pour afficher les informations d'une commande.
+ * @apiName GetCommandsId
+ * @apiGroup Point de vente
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {String} type  Type de la réponse.
+ * @apiSuccess {Object} links  Liste des liens.
+ * @apiSuccess {Link} links.self  Lien pour afficher les informations sur la commande.
+ * @apiSuccess {Link} links.items  Lien pour afficher les sandwichs de la commande.
+ * @apiSuccess {Object} command  Détails de la commande.
+ * @apiSuccess {String} command.id  ID de la commande.
+ * @apiSuccess {String} command.created_at  Date de création de la commande.
+ * @apiSuccess {String} command.livraison  Date de livraison de la commande.
+ * @apiSuccess {String} command.nom  Nom du client.
+ * @apiSuccess {String} command.mail  Adresse mail du client.
+ * @apiSuccess {Number} command.montant  Montant de la commande.
+ * @apiSuccess {Number} command.status  Status de la commande.
+ * @apiSuccess {Object} command.items  Liste des sandwichs de la commande.
+ * @apiSuccess {Link} command.items.uri  Lien pour afficher les ingrédients du sandwich.
+ * @apiSuccess {String} command.items.libelle  Nom du sandwich.
+ * @apiSuccess {Number} command.items.tarif  Prix du sandwich.
+ * @apiSuccess {Number} command.items.quantite  Quantité de sandwich commandé.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "type": "resource",
+ *       "links": {
+ *          "self": {
+ *              "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/?token=ztb6Gd62We.sdtSnTH44iY5sF3.$HB65l66ErEFpGvf2.f4d4H5y"
+ *          },
+ *          "items": {
+ *              "href": "/commands/18d247f1-51b9-4655-93f1-e5124539d8b9/items/?token=ztb6Gd62We.sdtSnTH44iY5sF3.$HB65l66ErEFpGvf2.f4d4H5y"
+ *          }
+ *       },
+ *       "command": {
+ *          "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *          "created_at": "2019-11-08T13:49:40.000Z",
+ *          "livraison": "2019-11-08T13:50:17.000Z",
+ *          "nom": "Lopez",
+ *          "mail": "lopez@gmail.com",
+ *          "montant": 9,
+ *          "status": 2,
+ *          "items": [
+ *              {
+ *                  "uri": "/sandwichs/s19002",
+ *                  "libelle": "le jambon beurre",
+ *                  "tarif": 4.5,
+ *                  "quantité": 2
+ *              }
+ *          ]
+ *       }
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.get("/commands/:id", async(req, res) => {
     let token = null;
 
@@ -167,6 +306,54 @@ app.get("/commands/:id", async(req, res) => {
     } else res.status(400).send("Veuillez entrer un token en paramètre ou sous le header 'X-lbs-token'");
 });
 
+/**
+ * @api {get} /commands/:id/items Affichage sandwichs
+ * @apiDescription Requête pour afficher la liste des sandwichs d'une commande.
+ * @apiName GetCommandsIdItems
+ * @apiGroup Point de vente
+ * 
+ * @apiHeader {String} x-lbs-token  Token d'authentification du client à renseigner en tant que paramètre du Header.
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {Object} items  Liste des sandwichs de la commande.
+ * @apiSuccess {Link} items.uri  Lien pour afficher les ingrédients du sandwich.
+ * @apiSuccess {String} items.libelle  Nom du sandwich.
+ * @apiSuccess {Number} items.tarif  Prix du sandwich.
+ * @apiSuccess {Number} items.quantite  Quantité de sandwich commandé.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "items": [
+ *          {
+ *              "uri": "/sandwichs/s19002",
+ *              "libelle": "le jambon beurre",
+ *              "tarif": 4.5,
+ *              "quantité": 1
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 400 Pas de token x-lbs-token ou mauvais token.
+ * @apiError 404 ID Command Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrer un token en paramètre ou sous le header 'x-lbs-token'"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Le token rv45DerDB.$DppLH423ed.Ef7ty3wSQ.az69BpmN4 ne correspond pas au token de la commande"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "12a345b6-78c9-1234-56d7-e8912345f6h7 isn't a valid id"
+ *     }
+ */
 app.get('/commands/:id/items/', function (req, res) {
     let token = null;
 
@@ -224,6 +411,42 @@ app.get('/commands/:id/items/', function (req, res) {
 
 // PUT 
 
+/**
+ * @api {put} /commandes/:id Modifier commande
+ * @apiDescription Requête pour modifier le status d'une commande.
+ * @apiName PutCommandesId
+ * @apiGroup Point de vente
+ * 
+ * @apiHeader {Object} body  Status de la commande à renseigner en json.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "status": 1
+ *     }
+ * 
+ * @apiParam {String} id  ID de la commande.
+ *
+ * @apiSuccess {Object} commande  Détails de la commande.
+ * @apiSuccess {String} commande.id  ID de la commande.
+ * @apiSuccess {Number} commande.status  Status de la commande.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "commande": [
+ *          {
+ *              "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
+ *              "status": 1
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 400 Entrer le status de la commande.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrez le status de la commande."
+ *     }
+ */
 app.put("/commandes/:id", (req, res) => {
     if(!req.body.status) res.status(400).end("Veuillez entrez le status de la commande.")
                     

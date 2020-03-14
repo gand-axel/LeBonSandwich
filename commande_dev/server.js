@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 /**
- * @api {get} /commands Affichage commande
+ * @api {get} /commands Affichage commandes
  * @apiDescription Requête pour afficher la liste de toutes les commandes.
  * @apiName GetCommands
  * @apiGroup Commande
