@@ -413,11 +413,11 @@ app.get('/commands/:id/items/', function (req, res) {
 
 /**
  * @api {put} /commandes/:id Modifier commande
- * @apiDescription Requête pour modifier le status d'une commande.
+ * @apiDescription Requête pour modifier le statut d'une commande.
  * @apiName PutCommandesId
  * @apiGroup Point de vente
  * 
- * @apiHeader {Object} body  Status de la commande à renseigner en json.
+ * @apiHeader {Object} body  Statut de la commande à renseigner en json.
  * 
  * @apiParamExample {json} Request-Example:
  *     {
