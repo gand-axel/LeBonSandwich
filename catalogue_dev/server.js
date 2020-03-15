@@ -46,7 +46,8 @@ app.get("/", (req, res) => {
 });
 
 /**
- * @api {get} /sandwichs  Requête pour avoir la liste de tous les sandwichs
+ * @api {get} /sandwichs Afficher tous les sandwichs
+ * @apiDescription Requête pour avoir la liste de tous les sandwichs
  * @apiName GetSandwichs
  * @apiGroup Catalogue
  *
@@ -85,7 +86,8 @@ app.get("/sandwichs", (req, res) => {
 });
 
 /**
- * @api {get} /sandwichs/:id  Requête pour avoir un sandwich selon son id
+ * @api {get} /sandwichs/:id Afficher un sandwich
+ * @apiDescription Requête pour avoir un sandwich selon son id
  * @apiName GetSandwichById
  * @apiGroup Catalogue
  *
@@ -138,7 +140,8 @@ app.get("/sandwichs/:id", (req, res) => {
 });
 
 /**
- * @api {get} /categories  Requête pour avoir la liste de toutes les catégories
+ * @api {get} /categories Afficher toutes les catégories
+ * @apiDescription Requête pour avoir la liste de toutes les catégories
  * @apiName GetCategories
  * @apiGroup Catalogue
  *
@@ -168,7 +171,8 @@ app.get("/categories", (req, res) => {
     });
 });
 /**
- * @api {get} /categories/:id  Requête pour avoir une catégorie selon son id
+ * @api {get} /categories/:id Afficher une catégorie
+ * @apiDescription Requête pour avoir une catégorie selon son id
  * @apiName GetCategorieById
  * @apiGroup Catalogue
  *
@@ -233,7 +237,8 @@ app.get("/categories/:id", (req, res) => {
 });
 
 /**
- * @api {get} /categories/:id/sandwichs  Requête pour avoir les sandwichs d'une seule catégorie en fonction de son ID
+ * @api {get} /categories/:id/sandwichs Afficher sandwichs d'une catégorie
+ * @apiDecription Requête pour avoir les sandwichs d'une seule catégorie en fonction de son ID
  * @apiName GetSandwichsByCategories
  * @apiGroup Catalogue
  *
@@ -316,7 +321,8 @@ app.get("/categories/:id/sandwichs", (req, res) => {
 });
 
 /**
- * @api {post} /categories  Requête pour ajouter une nouvelle catégorie
+ * @api {post} /categories Ajouter catégorie
+ * @apiDecription Requête pour ajouter une nouvelle catégorie
  * @apiName AddCategorie
  * @apiGroup Catalogue
  *
