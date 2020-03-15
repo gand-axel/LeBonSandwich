@@ -520,8 +520,8 @@ app.get("/clients/:id", (req, res) => {
  *       "nom": "Axel GAND",
  *       "mail": "axel.gand5@gmail.com",
  *       "livraison": {
- *          "date": "2020-03-14",
- *          "heure": "12:34:56"
+ *          "date": "14-03-2020",
+ *          "heure": "12:34"
  *       },
  *       "items": [
  *          {
@@ -553,8 +553,8 @@ app.get("/clients/:id", (req, res) => {
  *              "nom": "Axel GAND",
  *              "mail": "axel.gand5@gmail.com",
  *              "livraison": {
- *                  "date": "2020-03-14",
- *                  "heure": "12:34:56"
+ *                  "date": "14-03-2020",
+ *                  "heure": "12:34"
  *              },
  *              "items": [
  *                  {
@@ -845,8 +845,8 @@ app.post("/clients/:id/auth", (req, res) => {
  * @apiParamExample {json} Request-Example:
  *     {
  *       "livraison": {
- *          "date": "2020-03-14",
- *          "heure": "12:34:56"
+ *          "date": "14-03-2020",
+ *          "heure": "12:34"
  *       }
  *     }
  * 
@@ -864,8 +864,8 @@ app.post("/clients/:id/auth", (req, res) => {
  *          {
  *              "id": "18d247f1-51b9-4655-93f1-e5124539d8b9",
  *              "livraison": {
- *                  "date": "2020-03-14",
- *                  "heure": "12:34:56"
+ *                  "date": "14-03-2020",
+ *                  "heure": "12:34"
  *              }
  *          }
  *       ]
