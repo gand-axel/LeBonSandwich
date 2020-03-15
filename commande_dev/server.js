@@ -190,7 +190,7 @@ app.get('/commands', function (req, res) {
  * @apiSuccess {Link} command.items.uri  Lien pour afficher les ingrédients du sandwich.
  * @apiSuccess {String} command.items.libelle  Nom du sandwich.
  * @apiSuccess {Number} command.items.tarif  Prix du sandwich.
- * @apiSuccess {Number} command.items.quantite  Quantité de sandwich commandé.
+ * @apiSuccess {Number} command.items.quantite  Quantité de sandwich commandée.
  * 
  * @apiSuccessExample {json} Success-Response:
  *     {
@@ -325,7 +325,7 @@ app.get("/commands/:id", async(req, res) => {
  * @apiSuccess {Link} items.uri  Lien pour afficher les ingrédients du sandwich.
  * @apiSuccess {String} items.libelle  Nom du sandwich.
  * @apiSuccess {Number} items.tarif  Prix du sandwich.
- * @apiSuccess {Number} items.quantite  Quantité de sandwich commandé.
+ * @apiSuccess {Number} items.quantite  Quantité de sandwich commandée.
  * 
  * @apiSuccessExample {json} Success-Response:
  *     {
@@ -506,6 +506,117 @@ app.get("/clients/:id", (req, res) => {
 
 //POST
 
+/**
+ * @api {post} /commandes Ajouter commande
+ * @apiDescription Requête pour ajouter une commande.
+ * @apiName PostCommandes
+ * @apiGroup Commande
+ * 
+ * @apiHeader {Object} body  Informations de la commande à renseigner en json.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *       "client_id": 112,
+ *       "nom": "Axel GAND",
+ *       "mail": "axel.gand5@gmail.com",
+ *       "livraison": {
+ *          "date": "2020-03-14",
+ *          "heure": "12:34:56"
+ *       },
+ *       "items": [
+ *          {
+ *              "uri": "/sandwichs/s19002",
+ *              "q": 2
+ *          }
+ *       ]
+ *     }
+ *
+ * @apiSuccess {Object} commande  Détails de la commande.
+ * @apiSuccess {Number} commande.client_id  ID du client.
+ * @apiSuccess {String} commande.nom  Nom du client.
+ * @apiSuccess {String} commande.mail  Adresse mail du client.
+ * @apiSuccess {Object} commande.livraison  Date de livraison de la commande.
+ * @apiSuccess {String} commande.livraison.date  Date de livraison.
+ * @apiSuccess {String} commande.livraison.heure  Heure de livraison.
+ * @apiSuccess {Object} commande.items  Liste des sandwichs de la commande.
+ * @apiSuccess {Link} commande.items.uri  Lien pour afficher les ingrédients du sandwich.
+ * @apiSuccess {Number} commande.items.q  Quantité de sandwich commandée.
+ * @apiSuccess {Number} commande.montant  Montant de la commande.
+ * @apiSuccess {String} commande.id  ID de la commande.
+ * @apiSuccess {String} commande.token  Token de la commande.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *     {
+ *       "commande": [
+ *          {
+ *              "client_id": 112,
+ *              "nom": "Axel GAND",
+ *              "mail": "axel.gand5@gmail.com",
+ *              "livraison": {
+ *                  "date": "2020-03-14",
+ *                  "heure": "12:34:56"
+ *              },
+ *              "items": [
+ *                  {
+ *                      "uri": "/sandwichs/s19002",
+ *                      "q": 2
+ *                  }
+ *              ],
+ *              "montant": 9,
+ *              "id": "1f2d33es-59de-s521-az4v-s5e6d2c2ff3m",
+ *              "token": "et6g2ds62g6ezthsd2b62rt95hs7d2b6srt9hsdtb26st5h9rqsrehrju5dqe1f5"
+ *          }
+ *       ]
+ *     }
+ * 
+ * @apiError 400 Mauvaises informations concernant la commande.
+ * @apiError 401 Aucune Authorization Bearer présent dans le Header ou mauvais token.
+ * @apiError 404 ID Client Not Found.
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Veuillez entrez les informations suivantes : nom, mail, date et heure de livraison et liste d'items."
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Mauvais format du mail"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Mauvais format du nom (uniquement caractères alphabétiques)"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "Date/Heure de livraison non valide"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "La Date/Heure de livraison doit être future à la date actuelle"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "401",
+ *       "message": "no authorization Bearer header present"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "error": "Bad token"
+ *     }
+ * 
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *       "type": "error",
+ *       "error": "404",
+ *       "message": "1258 isn't a valid id"
+ *     }
+ */
 app.post("/commandes", (req, res) => {
     if(!req.body.items || !req.body.nom || !req.body.mail || !req.body.livraison.date || !req.body.livraison.heure) res.status(400).end("Veuillez entrez les informations suivantes : nom, mail, date et heure de livraison et liste d'items.")
     if(!validator.isEmail(req.body.mail)) res.status(400).end("Mauvais format du mail")
@@ -556,7 +667,7 @@ app.post("/commandes", (req, res) => {
                                 let erreur = {
                                     "type": "error",
                                     "error": 404,
-                                    "message": req.params.id + " isn't a valid id"
+                                    "message": req.body.client_id + " isn't a valid id"
                                 };
                                 JSON.stringify(erreur);
                                 res.send(erreur);
