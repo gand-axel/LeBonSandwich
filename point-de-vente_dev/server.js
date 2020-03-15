@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
  * @apiSuccess {String} commands.command.nom  Nom du client.
  * @apiSuccess {String} commands.command.created_at  Date de création de la commande.
  * @apiSuccess {String} commands.command.livraison  Date de livraison de la commande.
- * @apiSuccess {Number} commands.command.status  Status de la commande.
+ * @apiSuccess {Number} commands.command.status  Statut de la commande.
  * @apiSuccess {Object} commands.links  Liens vers les ressources associés à la commande.
  * @apiSuccess {Link} commands.links.self  Lien pour afficher les informations sur la commande.
  * 
@@ -180,7 +180,7 @@ app.get('/commands', function (req, res) {
  * @apiSuccess {String} command.nom  Nom du client.
  * @apiSuccess {String} command.mail  Adresse mail du client.
  * @apiSuccess {Number} command.montant  Montant de la commande.
- * @apiSuccess {Number} command.status  Status de la commande.
+ * @apiSuccess {Number} command.status  Statut de la commande.
  * @apiSuccess {Object} command.items  Liste des sandwichs de la commande.
  * @apiSuccess {Link} command.items.uri  Lien pour afficher les ingrédients du sandwich.
  * @apiSuccess {String} command.items.libelle  Nom du sandwich.
@@ -428,7 +428,7 @@ app.get('/commands/:id/items/', function (req, res) {
  *
  * @apiSuccess {Object} commande  Détails de la commande.
  * @apiSuccess {String} commande.id  ID de la commande.
- * @apiSuccess {Number} commande.status  Status de la commande.
+ * @apiSuccess {Number} commande.status  Statut de la commande.
  * 
  * @apiSuccessExample {json} Success-Response:
  *     {
