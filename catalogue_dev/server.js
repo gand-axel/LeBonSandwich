@@ -238,7 +238,7 @@ app.get("/categories/:id", (req, res) => {
 
 /**
  * @api {get} /categories/:id/sandwichs Afficher sandwichs d'une catégorie
- * @apiDecription Requête pour avoir les sandwichs d'une seule catégorie en fonction de son ID
+ * @apiDescription Requête pour avoir les sandwichs d'une seule catégorie en fonction de son ID
  * @apiName GetSandwichsByCategories
  * @apiGroup Catalogue
  *
@@ -322,7 +322,7 @@ app.get("/categories/:id/sandwichs", (req, res) => {
 
 /**
  * @api {post} /categories Ajouter catégorie
- * @apiDecription Requête pour ajouter une nouvelle catégorie
+ * @apiDescription Requête pour ajouter une nouvelle catégorie
  * @apiName AddCategorie
  * @apiGroup Catalogue
  *

@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 });
 
 /**
- * @api {get} /commands Affichage commandes
+ * @api {get} /commands Afficher commandes
  * @apiDescription Requête pour afficher la liste de toutes les commandes.
  * @apiName GetCommands
  * @apiGroup Commande
@@ -312,7 +312,7 @@ app.get("/commands/:id", async(req, res) => {
 });
 
 /**
- * @api {get} /commands/:id/items Affichage sandwichs
+ * @api {get} /commands/:id/items Afficher sandwichs
  * @apiDescription Requête pour afficher la liste des sandwichs d'une commande.
  * @apiName GetCommandsIdItems
  * @apiGroup Commande
@@ -415,7 +415,7 @@ app.get('/commands/:id/items/', function (req, res) {
 });
 
 /**
- * @api {get} /clients/:id Affichage client
+ * @api {get} /clients/:id Afficher client
  * @apiDescription Requête pour afficher les informations d'un client.
  * @apiName GetClientsId
  * @apiGroup Commande
