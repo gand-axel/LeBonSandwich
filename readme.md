@@ -2,6 +2,8 @@
 
 MISSLER Quentin, GAND Axel, GACHENOT Antoine
 
+Trello du projet : https://trello.com/b/LtsHLCVq
+
 ## Installation
 
 Pour installer Nodemon, se rendre dans les dossiers ./commande_dev, ./catalogue_dev et ./point-de-vente_dev
